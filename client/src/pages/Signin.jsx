@@ -1,7 +1,6 @@
 import { Alert, Button, Label, Spinner, TextInput } from 'flowbite-react'
 import React, { useState} from 'react'
 import { Link } from "react-router-dom"
-import axios from 'axios'
 import { useNavigate } from 'react-router-dom'
 import { signUpFail,signUpStart,signUpSuccess } from '../redux/user/userSlice'
 import {useDispatch,useSelector} from 'react-redux'
@@ -34,16 +33,13 @@ const Signin = () => {
           else{
             dispatch(signUpSuccess(data))
             navigate("/");
-          }
-    
-          
+          }   
       }
       catch(err){
           dispatch(signUpFail(err.message));
 
       }
  }
-
   return (
     <div className='min-h-screen mt-20'>
 
@@ -75,9 +71,7 @@ const Signin = () => {
                     <Label value="Your password"/>
                     <TextInput type="password" placeholder="Password" id="password" onChange={handleChange}/>                      
                 </div>
-
                 <Button className='text-white text-3xl' gradientDuoTone='purpleToPink' type='submit' disabled={loading}>
-
                 {
                   loading?(
                     <>
