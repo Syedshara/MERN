@@ -13,7 +13,7 @@ const Header = () => {
   const { theme } = useSelector(state => state.theme)
   return (
 
-    <Navbar className='border-b-2'>
+    <Navbar className='border-b-2 '>
       <Link to='/' className='self-center whitespace-nowrap text-sm sm:text-xl font-semibold dark:text-white'>
         <span className='px-2 py-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-lg text-white'>Sara's</span>
         Blog
@@ -32,7 +32,7 @@ const Header = () => {
       <div className='flex gap-2 md:order-2'>
         <Button className='w-12 h-10 hidden sm:inline' color='gray' pill onClick={() => dispatcher(toggleTheme())} >
           {
-            theme == 'light' ? <FaMoon /> : <FaSun />
+            theme === 'light' ? <FaMoon /> : <FaSun />
           }
 
         </Button>
@@ -69,16 +69,21 @@ const Header = () => {
           </Link>
         )
         }
+        {!currentUser && <Link to='/sign-up'>
+          <Button color='gray' className='hidden sm:inline'>
+            sign up
+          </Button>
+        </Link>}
         <NavbarToggle />
       </div>
 
-      <Navbar.Collapse>
+      <Navbar.Collapse >
         <Navbar.Link active={location === '/'} as="div">
           <Link to='/'>
             Home
           </Link>
         </Navbar.Link>
-        <Navbar.Link active={location === '/projects'} as="div">
+        <Navbar.Link active={location === '/projects'} as="div" >
           <Link to='/projects'>
             Projects
           </Link>
@@ -89,7 +94,7 @@ const Header = () => {
           </Link>
         </Navbar.Link>
       </Navbar.Collapse>
-    </Navbar>
+    </Navbar >
   )
 }
 

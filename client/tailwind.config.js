@@ -6,7 +6,13 @@ export default {
     'node_modules/flowbite-react/lib/esm/**/*.js',
   ],
   theme: {
-    extend: {},
+    extend: {
+
+      colors: {
+        'custom-dark': '#131314',
+      },
+
+    },
   },
   plugins: [require('flowbite/plugin'),],
 }
