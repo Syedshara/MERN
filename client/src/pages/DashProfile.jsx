@@ -10,20 +10,77 @@ import {
 } from 'firebase/storage';
 import { CircularProgressbar } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
-
+import { updateStart, updateFailure, updateSuccess } from '../redux/user/userSlice';
+import { useDispatch } from 'react-redux';
 const DashProfile = () => {
+    const dispatch = useDispatch()
     const { currentUser } = useSelector(state => state.user)
     const imref = useRef();
     const [imgFile, setImgFile] = useState(null)
     const [imgURL, setImgURL] = useState(null)
     const [imgFileProgress, setImgFileProgess] = useState(null)
     const [imgFileError, setImgFileError] = useState(null)
+    const [imgLoading, setImgLoading] = useState(false)
+    const [formDataError, setFormDataError] = useState(null)
+    const [formDataSuccess, setFormDataSuccess] = useState(null)
+    const [formData, setFormData] = useState({})
     const photoChange = (e) => {
         const file = e.target.files[0]
         if (file) {
             setImgFile(file)
             setImgURL(URL.createObjectURL(file))
         }
+    }
+    const handlechange = (e) => {
+        setFormData({ ...formData, [e.target.id]: e.target.value.trim() })
+        console.log(formData)
+    }
+    const handleSubmit = async (e) => {
+        e.preventDefault()
+        setFormDataError(null)
+        setFormDataSuccess(null)
+        if (formData.username === currentUser.username || formData.email === currentUser.email || formData.photoURL === currentUser.photoURL) {
+            setFormDataError("No changes made")
+            return
+        }
+        if (Object.keys(formData).length == 0) {
+            setFormDataError('Please fill all the fields')
+            return
+        }
+        if (imgLoading) {
+            setFormDataError("Image is not loaded yet.please wait a moment .")
+            return
+        }
+        try {
+            dispatch(updateStart())
+            const res = await fetch(
+                `api/user/update/${currentUser._id}`,
+                {
+                    method: "PUT",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(formData)
+                }
+
+            )
+            const data = await res.json()
+            console.log(data)
+            if (data.success == false) {
+                dispatch(updateFailure(data.message))
+                setFormDataError(data.message)
+            }
+            else {
+                dispatch(updateSuccess(data))
+                setFormDataError(null)
+                setFormDataSuccess("Updated Successfully")
+            }
+
+        }
+        catch (err) {
+            setFormDataError(data.error)
+        }
+
     }
     useEffect(() => {
         if (imgFile) {
@@ -33,6 +90,7 @@ const DashProfile = () => {
     }, [imgFile])
     const uploadImg = () => {
         setImgFileError(null)
+        setImgLoading(true)
         const storage = getStorage(app)
         const filename = new Date().getTime() + imgFile.name
         const storageRef = ref(storage, filename)
@@ -46,10 +104,13 @@ const DashProfile = () => {
             setImgFile(null)
             setImgURL(null)
             setImgFileProgess(null)
+            setImgLoading(false)
 
         }, () => {
             getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
                 setImgURL(downloadURL)
+                setFormData({ ...formData, photoURL: downloadURL })
+                setImgLoading(false)
 
             })
         })
@@ -62,7 +123,7 @@ const DashProfile = () => {
     return (
         <div className='mt-10 max-w-md mx-auto w-full'>
             <h1 className='my-7 text-center font-semibold text-3xl'>Profile</h1>
-            <form className='flex flex-col gap-5 mt-6'>
+            <form onSubmit={handleSubmit} className='flex flex-col gap-5 mt-6'>
                 <input type='file' accept='image/*' onChange={photoChange} ref={imref} hidden ></input>
                 <div className='relative w-32 h-32 self-center cursor-pointer shadow-md overflow-hidden rounded-full'
                     onClick={() => imref.current.click()}>
@@ -99,16 +160,22 @@ const DashProfile = () => {
                 <TextInput
                     type='text'
                     placeholder='User Name'
+                    id="username"
                     defaultValue={currentUser.username}
+                    onChange={handlechange}
                 />
                 <TextInput
                     type='email'
                     placeholder='User Name'
+                    id="email"
                     defaultValue={currentUser.email}
+                    disabled
                 />
                 <TextInput
                     type='text'
+                    id='password'
                     placeholder='Password'
+                    onChange={handlechange}
 
                 />
                 <Button type="submit" gradientDuoTone="purpleToBlue" outline>
@@ -120,6 +187,20 @@ const DashProfile = () => {
                 <span className=' text-red-500 font-sans cursor-pointer'>Delete Account</span>
                 <span className=' font-sans cursor-pointer'>Sign Out</span>
             </div>
+            {
+                formDataError &&
+                <Alert color="failure" className='my-7 mb-10'>
+                    {formDataError}
+                </Alert>
+
+            }
+            {
+                formDataSuccess &&
+                <Alert color="success" className='my-7 mb-10'>
+                    {formDataSuccess}
+                </Alert>
+
+            }
         </div>
     )
 }
