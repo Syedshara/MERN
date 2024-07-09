@@ -1,5 +1,6 @@
-import { Alert, Button, TextInput } from 'flowbite-react'
+import { Alert, Button, Modal, TextInput } from 'flowbite-react'
 import React, { useState, useRef, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useSelector } from 'react-redux'
 import { app } from '../firebase'
 import {
@@ -10,10 +11,12 @@ import {
 } from 'firebase/storage';
 import { CircularProgressbar } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
-import { updateStart, updateFailure, updateSuccess } from '../redux/user/userSlice';
+import { updateStart, updateFailure, updateSuccess, deleteFailure, deleteStart, deleteSuccess, signoutFailure, signoutStart, signoutSuccess } from '../redux/user/userSlice';
 import { useDispatch } from 'react-redux';
+import { HiOutlineExclamationCircle } from 'react-icons/hi'
 const DashProfile = () => {
     const dispatch = useDispatch()
+    const navigate = useNavigate()
     const { currentUser } = useSelector(state => state.user)
     const imref = useRef();
     const [imgFile, setImgFile] = useState(null)
@@ -23,6 +26,7 @@ const DashProfile = () => {
     const [imgLoading, setImgLoading] = useState(false)
     const [formDataError, setFormDataError] = useState(null)
     const [formDataSuccess, setFormDataSuccess] = useState(null)
+    const [open, setOpen] = useState(false)
     const [formData, setFormData] = useState({})
     const photoChange = (e) => {
         const file = e.target.files[0]
@@ -43,14 +47,15 @@ const DashProfile = () => {
             setFormDataError("No changes made")
             return
         }
-        if (Object.keys(formData).length == 0) {
-            setFormDataError('Please fill all the fields')
-            return
-        }
         if (imgLoading) {
             setFormDataError("Image is not loaded yet.please wait a moment .")
             return
         }
+        if (Object.keys(formData).length == 0) {
+            setFormDataError('Please fill all the fields')
+            return
+        }
+
         try {
             dispatch(updateStart())
             const res = await fetch(
@@ -74,11 +79,12 @@ const DashProfile = () => {
                 dispatch(updateSuccess(data))
                 setFormDataError(null)
                 setFormDataSuccess("Updated Successfully")
+                setImgFileProgess(null)
             }
 
         }
         catch (err) {
-            setFormDataError(data.error)
+            setFormDataError(err.message)
         }
 
     }
@@ -116,9 +122,66 @@ const DashProfile = () => {
         })
     }
 
+    const handleDelete = async () => {
+        setFormDataError(null)
+        setOpen(false)
+        setFormDataSuccess(null)
+        try {
+            dispatch(deleteStart())
+            const data = await fetch(`/api/user/delete/${currentUser._id}`, {
+                method: 'DELETE',
+            });
+            const res = await data.json()
+            if (res.success === false) {
+                setFormDataError(res.message)
+                dispatch(deleteFailure(res.message))
+            }
+            else {
 
+                setFormDataError(null)
+                setFormDataSuccess("Deleted Successfully")
+                setTimeout(() => {
 
+                    dispatch(deleteSuccess())
+                }, 2000)
 
+            }
+
+        }
+        catch (err) {
+            dispatch(deleteFailure(err.message))
+            setFormDataError(err.message)
+        }
+
+    }
+
+    const handleSignOut = async () => {
+        setFormDataError(null)
+        setFormDataSuccess(null)
+        try {
+            dispatch(signoutStart())
+            const data = await fetch("/api/user/signout", {
+                method: "POST"
+            })
+            const res = await data.json()
+            if (res.success === false) {
+                dispatch(signoutFailure(res.message))
+                setFormDataError(res.message)
+            }
+            else {
+                setFormDataError(null)
+                setFormDataSuccess("Signed Out Successfully")
+                setTimeout(() => {
+                    dispatch(signoutSuccess())
+                }, 2000)
+            }
+        }
+        catch (err) {
+            dispatch(signoutFailure(err.message))
+            setFormDataError(err.message)
+        }
+
+    }
 
     return (
         <div className='mt-10 max-w-md mx-auto w-full'>
@@ -184,8 +247,8 @@ const DashProfile = () => {
 
             </form>
             <div className='my-7 flex justify-between'>
-                <span className=' text-red-500 font-sans cursor-pointer'>Delete Account</span>
-                <span className=' font-sans cursor-pointer'>Sign Out</span>
+                <span className=' text-red-500 font-sans cursor-pointer' onClick={() => setOpen(true)}>Delete Account</span>
+                <span className=' font-sans cursor-pointer' onClick={handleSignOut}>Sign Out</span>
             </div>
             {
                 formDataError &&
@@ -201,6 +264,33 @@ const DashProfile = () => {
                 </Alert>
 
             }
+            <Modal
+                show={open}
+                onClose={() => setOpen(false)}
+                size="md"
+                popup
+            >
+                <Modal.Header></Modal.Header>
+                <Modal.Body>
+                    <div className='text-center'>
+
+                        <HiOutlineExclamationCircle className='mx-auto mb-4 w-12 h-12 text-gray-400 dark:text-gray-200' />
+                        <h3 className='text-lg font-medium text-gray-400 dark:text-gray-100'>
+                            Are you sure you want to delete your account?
+
+                        </h3>
+                        <div className='flex justify-center gap-5 mt-7'>
+                            <Button color='failure' onClick={handleDelete}>
+                                Yes, I am Sure.
+                            </Button>
+                            <Button color='gray' onClick={() => setOpen(false)}>
+                                No, Cancel.
+                            </Button>
+                        </div>
+
+                    </div>
+                </Modal.Body>
+            </Modal>
         </div>
     )
 }
