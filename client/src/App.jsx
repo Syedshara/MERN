@@ -8,6 +8,8 @@ import Projects from './pages/Projects';
 import Header from './pages/Header';
 import Footer from './components/Footer';
 import ProtextDashboard from './components/ProtextDashboard';
+import AdminProtectPost from './components/AdminProtectPost';
+import CreatePost from './pages/CreatePost';
 
 const App = () => {
   return (
@@ -20,6 +22,9 @@ const App = () => {
         <Route path="/sign-up" element={<Signup />} />
         <Route element={<ProtextDashboard />} >
           <Route path="/dashboard" element={<DashBoard />} />
+        </Route>
+        <Route element={<AdminProtectPost />} >
+          <Route path="/create-post" element={<CreatePost />} />
         </Route>
         <Route path="/projects" element={<Projects />} />
       </Routes>

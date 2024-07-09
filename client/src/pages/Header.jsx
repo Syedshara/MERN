@@ -7,8 +7,10 @@ import { useSelector } from 'react-redux'
 import { useDispatch } from 'react-redux'
 import { toggleTheme } from '../redux/theme/themeSlice'
 import { signoutFailure, signoutStart, signoutSuccess } from '../redux/user/userSlice'
+import { useNavigate } from 'react-router-dom'
 const Header = () => {
   const location = useLocation().pathname;
+  const navigate = useNavigate();
   const dispatcher = useDispatch();
   const { currentUser } = useSelector(state => state.user)
   const { theme } = useSelector(state => state.theme)
@@ -28,6 +30,7 @@ const Header = () => {
       else {
 
         dispatcher(signoutSuccess())
+        navigate("/sign-in")
 
       }
     }

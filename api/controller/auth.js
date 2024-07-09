@@ -41,7 +41,7 @@ export const getUsers = async (req, res, next) => {
         if (!check) {
             return next(errorHandler(400, "Invalid Password"));
         }
-        const token = jwt.sign({ userId: validUser._id }, process.env.SECRET);
+        const token = jwt.sign({ userId: validUser._id, isAdmin: validUser.isAdmin }, process.env.SECRET);
         const { password: pass, ...rest } = validUser._doc;
         res.status(200)
             .cookie("access_token", token, { httpOnly: true })
@@ -61,7 +61,7 @@ export const google = async (req, res, next) => {
     try {
         const user = await User.findOne({ email });
         if (user) {
-            const token = jwt.sign({ userId: user._id }, process.env.SECRET);
+            const token = jwt.sign({ userId: user._id, isAdmin: user.isAdmin }, process.env.SECRET);
             const { password: pass, ...rest } = user._doc;
             res.status(200).cookie('access_token', token, { httpOnly: true }).json(rest);
         }
@@ -72,12 +72,13 @@ export const google = async (req, res, next) => {
                 username: name.toLowerCase().split(' ').join('') + Math.random().toString(9).slice(-4),
                 email,
                 password: hashed,
-                photoURL
+                photoURL,
+                isAdmin: false
 
             })
             await newUser.save();
 
-            const token = jwt.sign({ userId: newUser._id }, process.env.SECRET);
+            const token = jwt.sign({ userId: newUser._id, isAdmin: newUser.isAdmin }, process.env.SECRET);
             const { password: pass, ...rest } = newUser._doc;
             res.status(200).cookie('access_token', token, { httpOnly: true }).json(rest);
 

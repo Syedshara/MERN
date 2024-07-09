@@ -1,6 +1,6 @@
-import { Alert, Button, Modal, TextInput } from 'flowbite-react'
+import { Alert, Button, Modal, TextInput, Spinner } from 'flowbite-react'
 import React, { useState, useRef, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useSelector } from 'react-redux'
 import { app } from '../firebase'
 import {
@@ -17,7 +17,7 @@ import { HiOutlineExclamationCircle } from 'react-icons/hi'
 const DashProfile = () => {
     const dispatch = useDispatch()
     const navigate = useNavigate()
-    const { currentUser } = useSelector(state => state.user)
+    const { currentUser, loading } = useSelector(state => state.user)
     const imref = useRef();
     const [imgFile, setImgFile] = useState(null)
     const [imgURL, setImgURL] = useState(null)
@@ -52,7 +52,7 @@ const DashProfile = () => {
             return
         }
         if (Object.keys(formData).length == 0) {
-            setFormDataError('Please fill all the fields')
+
             return
         }
 
@@ -80,6 +80,7 @@ const DashProfile = () => {
                 setFormDataError(null)
                 setFormDataSuccess("Updated Successfully")
                 setImgFileProgess(null)
+                setFormData({})
             }
 
         }
@@ -241,9 +242,26 @@ const DashProfile = () => {
                     onChange={handlechange}
 
                 />
-                <Button type="submit" gradientDuoTone="purpleToBlue" outline>
-                    Update
+                <Button type="submit" gradientDuoTone="purpleToBlue" outline disabled={loading | imgLoading}>{
+                    loading || imgLoading ? (
+                        <>
+                            <Spinner size='md' />
+                            <span className='ml-2'>Loading...</span>
+                        </>
+                    ) : "Update"
+                }
+
                 </Button>
+                {
+                    currentUser.isAdmin &&
+                    <Link to="/create-post">
+                        <Button type="button" gradientDuoTone="purpleToPink" className='font-semibold w-full' >
+                            Create a  Post
+                        </Button>
+
+                    </Link>
+                }
+
 
             </form>
             <div className='my-7 flex justify-between'>
