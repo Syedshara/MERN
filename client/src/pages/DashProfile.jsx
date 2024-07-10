@@ -185,7 +185,7 @@ const DashProfile = () => {
     }
 
     return (
-        <div className='mt-10 max-w-md mx-auto w-full'>
+        <div className='mt-10 max-w-md mx-auto w-full p-3'>
             <h1 className='my-7 text-center font-semibold text-3xl'>Profile</h1>
             <form onSubmit={handleSubmit} className='flex flex-col gap-5 mt-6'>
                 <input type='file' accept='image/*' onChange={photoChange} ref={imref} hidden ></input>

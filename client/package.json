@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.2.3",
+    "@tinymce/tinymce-react": "^5.1.1",
     "e": "^0.2.33",
     "firebase": "^10.11.0",
     "flowbite-react": "^0.7.2",
@@ -20,7 +21,8 @@
     "react-quill": "^2.0.0",
     "react-redux": "^9.1.1",
     "react-router-dom": "^6.22.3",
-    "redux-persist": "^6.0.0"
+    "redux-persist": "^6.0.0",
+    "tailwind-scrollbar": "^3.1.0"
   },
   "devDependencies": {
     "@types/react": "^18.2.56",
