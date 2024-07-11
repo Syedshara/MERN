@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import user from './routes/user.js'
 import auth from './routes/auth.js'
 import post from './routes/post.js'
+import comment from './routes/comment.js'
 import cookieParser from 'cookie-parser';
 dotenv.config();
 const app = express();
@@ -22,6 +23,8 @@ app.use(cookieParser())
 app.use('/api/user', user)
 app.use('/api/auth', auth)
 app.use('/api/post', post)
+app.use('/api/comment', comment)
+
 
 app.use((error, req, res, next) => {
 

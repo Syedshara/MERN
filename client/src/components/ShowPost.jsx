@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom'
 import { useEffect } from 'react'
 import { Spinner } from 'flowbite-react'
 import CallToAction from './CallToAction'
+import CommentPost from './CommentPost'
 
 const ShowPost = () => {
     const { postslug } = useParams()
@@ -38,7 +39,7 @@ const ShowPost = () => {
             </div>
         )
     }
-    console.log(post)
+
     return (
         <main className='min-h-screen max-w-6xl flex flex-col mx-auto p-3 '>
             <h1 className='text-3xl mt-10 p-3 text-center font-serif max-w-2xl mx-auto lg:text-4xl'>
@@ -67,6 +68,7 @@ const ShowPost = () => {
             <div className='w-full max-w-4xl mx-auto p-3'>
                 <CallToAction />
             </div>
+            <CommentPost postId={post && post._id} />
         </main>
     )
 }

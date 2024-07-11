@@ -12,10 +12,12 @@ import AdminProtectPost from './components/AdminProtectPost';
 import CreatePost from './pages/CreatePost';
 import UpdatePost from './pages/UpdatePost'
 import ShowPost from './components/ShowPost';
+import ScrollUp from './components/ScrollUp';
 
 const App = () => {
   return (
     <BrowserRouter>
+      <ScrollUp />
       <Header />
       <Routes>
         <Route path="/" element={<Home />} />

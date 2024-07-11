@@ -8,7 +8,7 @@ const CallToAction = () => {
                 <h1 className='text-xl font-bold'>
                     Want to see my Porjects
                 </h1>
-                <p className='text-gray-200 text-md'>
+                <p className='text-gray-500  dark:text-gray-200 text-md'>
                     Explore more project of mine to get more information
                 </p>
                 <Button gradientDuoTone="purpleToPink" className='rounded-none rounded-r-sm rounder-bl-sm rounded-br-sm rounded-tl-xl rounded-bl-none'>

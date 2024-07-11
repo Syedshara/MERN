@@ -15,7 +15,6 @@ const Header = () => {
   const { currentUser } = useSelector(state => state.user)
   const { theme } = useSelector(state => state.theme)
   const handleSignOut = async () => {
-    console.log("cv");
 
     try {
       dispatcher(signoutStart())
@@ -30,7 +29,7 @@ const Header = () => {
       else {
 
         dispatcher(signoutSuccess())
-        navigate("/sign-in")
+
 
       }
     }
