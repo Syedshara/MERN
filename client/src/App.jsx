@@ -11,6 +11,7 @@ import ProtextDashboard from './components/ProtextDashboard';
 import AdminProtectPost from './components/AdminProtectPost';
 import CreatePost from './pages/CreatePost';
 import UpdatePost from './pages/UpdatePost'
+import ShowPost from './components/ShowPost';
 
 const App = () => {
   return (
@@ -29,6 +30,7 @@ const App = () => {
           <Route path='/update-post/:postId' element={<UpdatePost />} />
         </Route>
         <Route path="/projects" element={<Projects />} />
+        <Route path="/post/:postslug" element={<ShowPost />} />
       </Routes>
       <Footer />
     </BrowserRouter>

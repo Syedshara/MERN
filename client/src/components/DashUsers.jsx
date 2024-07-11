@@ -4,10 +4,11 @@ import { useSelector } from 'react-redux'
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { HiOutlineExclamationCircle } from 'react-icons/hi'
+import { FaCheck, FaTimes } from 'react-icons/fa'
 
 const DashPost = () => {
     const { currentUser } = useSelector(state => state.user)
-    const [userPost, setUserPost] = useState([])
+    const [users, setUsers] = useState([])
     const [showMore, setShowMore] = useState(true)
     const [deleteId, setDeleteId] = useState(null)
     const [open, setOpen] = useState(false)
@@ -15,12 +16,12 @@ const DashPost = () => {
         const fetchPost = async () => {
             try {
                 const res = await fetch(
-                    `/api/post/getpost?userId=${currentUser._id}`
+                    "/api/user/getuser"
                 )
                 const data = await res.json()
                 if (res.ok) {
-                    setUserPost(data.posts)
-                    if (data.posts.length < 9) {
+                    setUsers(data.userWithOutPass)
+                    if (data.userWithOutPass.length < 9) {
                         setShowMore(false)
                     }
                 }
@@ -36,15 +37,15 @@ const DashPost = () => {
     }, [currentUser._id])
 
     const handleShowMore = async () => {
-        const start = userPost.length;
+        const start = users.length;
         try {
             const res = await fetch(
-                `/api/post/getpost?userId=${currentUser._id}&startIndex=${start}`
+                `/api/user/getuser?startIndex=${start}`
             )
             const data = await res.json()
             if (res.ok) {
-                setUserPost([...userPost, ...data.posts])
-                if (data.posts.length < 9) {
+                setUsers([...users, ...data.userWithOutPass])
+                if (data.userWithOutPass.length < 9) {
                     setShowMore(false)
                 }
 
@@ -62,69 +63,76 @@ const DashPost = () => {
     const handleDelete = async () => {
         setOpen(false)
         try {
-            const res = await fetch(`/api/post/deletepost/${deleteId}/${currentUser._id}`, {
-                method: 'DELETE'
-            }
-            )
-            const data = await res.json()
-            if (res.ok) {
-                const newPost = userPost.filter((post) => post._id !== deleteId)
-                setUserPost(newPost)
-                if (newPost.length < 9) {
-                    setShowMore(false)
-                }
+            const data = await fetch(`/api/user/delete/${deleteId}`, {
+                method: 'DELETE',
+            });
+            const res = await data.json()
+            if (res.success === false) {
+                alert(res.message)
 
             }
             else {
-                console.log(data.message)
+                alert("User Deleted Successfull")
+                const newUser = users.filter((user) => user._id !== deleteId)
+                setUsers(newUser)
+                if (newUser.length < 9) {
+                    setShowMore(false)
+                }
             }
 
         }
         catch (err) {
             console.log(err)
+            alert(err.message)
         }
-
 
     }
     return (
         <div className='table-auto overflow-x-scroll md:mx-auto p-3 scrollbar dark:scrollbar-track-slate-700 dark:scrollbar-thumb-slate-500 scrollbar-thumb-slate-300 scrollbar-track-slate-100 mt-7'>
             {
-                currentUser.isAdmin && userPost.length > 0 ? (
+                currentUser.isAdmin && users.length > 0 ? (
                     <>
                         <Table hoverable className='shadow-md'>
-                            <Table.Head className='text-center'>
-                                <Table.HeadCell>Date updated</Table.HeadCell>
-                                <Table.HeadCell>Post image</Table.HeadCell>
-                                <Table.HeadCell>Post title</Table.HeadCell>
-                                <Table.HeadCell>Delete</Table.HeadCell>
+                            <Table.Head >
+                                <Table.HeadCell>DATE CREATED</Table.HeadCell>
+                                <Table.HeadCell>USER IMAGE</Table.HeadCell>
+                                <Table.HeadCell>USERNAME</Table.HeadCell>
+                                <Table.HeadCell>EMAIL</Table.HeadCell>
+                                <Table.HeadCell>ADMIN</Table.HeadCell>
                                 <Table.HeadCell>
-                                    <span>Edit</span>
+                                    <span>DELETE</span>
                                 </Table.HeadCell>
                             </Table.Head>
                             {
-                                userPost.map((post) => (
-                                    <Table.Body key={post._id} className='divide-y'>
+                                users.map((user) => (
+                                    <Table.Body key={user._id} className='divide-y'>
                                         <Table.Row className='bg-slate-100  dark:bg-gray-800'>
                                             <Table.Cell>
-                                                {new Date(post.updatedAt).toLocaleDateString()}
+                                                {new Date(user.createdAt).toLocaleDateString()}
                                             </Table.Cell>
                                             <Table.Cell>
-                                                <Link to={`/post/${post.slug}`}>
-                                                    <img src={post.imgURL} alt="Post" className='w-30 h-20 object-cover bg-gray-900 mx-auto' />
+                                                <Link>
+                                                    <img src={user.photoURL} alt="Post" className='w-10 h-10 object-cover bg-gray-500 rounded-full self-center mx-auto' />
                                                 </Link>
                                             </Table.Cell>
 
 
                                             <Table.Cell>
-                                                <Link to={`/post/${post.slug}`} className='font-medium text-gray-800 dark:text-slate-100'>
-                                                    {post.title}
-                                                </Link>
+                                                {user.username}
+                                            </Table.Cell>
+
+                                            <Table.Cell>
+                                                {user.email}
+                                            </Table.Cell>
+
+                                            <Table.Cell>
+                                                {user.isAdmin ? (<FaCheck className='text-green-500' />) : (<FaTimes className='text-red-500' />)}
                                             </Table.Cell>
                                             <Table.Cell>
                                                 <span className='font-medium text-red-500 hover:underline cursor-pointer'
                                                     onClick={() => {
                                                         setOpen(true)
-                                                        setDeleteId(post._id)
+                                                        setDeleteId(user._id)
                                                     }
                                                     }
                                                 >
@@ -132,15 +140,7 @@ const DashPost = () => {
                                                 </span>
 
                                             </Table.Cell>
-                                            <Table.Cell>
-                                                <Link className='font-medium text-teal-300 hover:underline cursor-pointer' to={`/update-post/${post._id}`}>
-                                                    <span
-                                                    >
-                                                        Edit
-                                                    </span>
-                                                </Link>
 
-                                            </Table.Cell>
                                         </Table.Row>
                                     </Table.Body>
                                 ))

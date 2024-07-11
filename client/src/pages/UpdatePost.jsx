@@ -19,22 +19,13 @@ export default function UpdatePost() {
     const [imageUploadProgress, setImageUploadProgress] = useState(null);
     const [imageUploadError, setImageUploadError] = useState(null);
     const [formData, setFormData] = useState({});
-    const [formData2, setFormData2] = useState({});
+    const [fdata, setData] = useState({});
     const [publishError, setPublishError] = useState(null);
     const { postId } = useParams();
 
     const navigate = useNavigate();
     const { currentUser } = useSelector((state) => state.user);
 
-
-    const handleChange = (value) => {
-
-        setFormData({
-            ...formData,  // Spread the current formData to maintain other fields, if any
-            content: value,
-        });
-
-    };
 
     useEffect(() => {
         try {
@@ -48,8 +39,7 @@ export default function UpdatePost() {
                 }
                 if (res.ok) {
                     setPublishError(null);
-                    setFormData(data.posts[0]);
-
+                    setData(data.posts[0]);
                     console.log("data")
                     return
                 }
@@ -90,7 +80,7 @@ export default function UpdatePost() {
                     getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
                         setImageUploadProgress(null);
                         setImageUploadError(null);
-                        setFormData({ ...formData, image: downloadURL });
+                        setFormData({ ...formData, imgURL: downloadURL });
                     });
                 }
             );
@@ -102,8 +92,17 @@ export default function UpdatePost() {
     };
     const handleSubmit = async (e) => {
         e.preventDefault();
+        console.log(Object.keys(formData).length)
+        if (Object.keys(formData).length == 0) {
+            return;
+        }
+        if (formData.title == fdata.title || formData.content == fdata.content || formData.imgURL == fdata.imgURL) {
+            setPublishError("No changes")
+            return;
+        }
+
         try {
-            const res = await fetch(`/api/post/updatepost/${formData._id}/${currentUser._id}`, {
+            const res = await fetch(`/api/post/updatepost/${fdata._id}/${currentUser._id}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -124,6 +123,7 @@ export default function UpdatePost() {
             setPublishError('Something went wrong');
         }
     };
+    console.log(formData)
     return (
         <div className='p-3 max-w-3xl mx-auto min-h-screen'>
             <h1 className='text-center text-3xl my-7 font-semibold'>Update post</h1>
@@ -134,10 +134,10 @@ export default function UpdatePost() {
                         placeholder='Title'
                         required
                         id='title'
-                        value={formData.title || formData2.title}
+                        defaultValue={fdata.title || ''}
                         className='flex-1'
                         onChange={(e) =>
-                            setFormData({ ...formData, title: e.target.value })
+                            setFormData({ ...formData, title: e.target.value.trim() })
                         }
 
                     />
@@ -171,25 +171,23 @@ export default function UpdatePost() {
                     </Button>
                 </div>
                 {imageUploadError && <Alert color='failure'>{imageUploadError}</Alert>}
-                {formData.imgURL && (
+                {(formData.imgURL || fdata.imgURL) && (
                     <img
-                        src={formData.imgURL}
+                        src={formData.imgURL || fdata.imgURL}
                         alt='upload'
                         className='w-full h-72 object-cover'
                     />
                 )}
-                <Textarea
-                    className='h-72 mb-12'
-                    required
-                    value={formData.content}
-                    placeholder='Write something...'
-                    onChange={(e) =>
-                        setFormData({ ...formData, content: e.target.value.trim() })
-                    }
+                <ReactQuill
+                    theme="snow"
+                    value={formData.content || fdata.content}
+                    className='h-72 mb-10 text-gray-800 dark:text-white'
+                    placeholder='Enter the captions'
+                    onChange={(value) => setFormData({ ...formData, content: value.trim() })}
 
-                >
+                />
 
-                </Textarea>
+
                 <Button type='submit' gradientDuoTone='purpleToPink'>
                     Update post
                 </Button>
@@ -199,6 +197,6 @@ export default function UpdatePost() {
                     </Alert>
                 )}
             </form>
-        </div>
+        </div >
     );
 }
