@@ -4,11 +4,14 @@ import { useEffect } from 'react'
 import { Spinner } from 'flowbite-react'
 import CallToAction from './CallToAction'
 import CommentPost from './CommentPost'
+import PostCard from './PostCard'
+
 
 const ShowPost = () => {
     const { postslug } = useParams()
     const [loading, setLoading] = useState(false)
     const [post, setPost] = useState(null)
+    const [recents, setRecents] = useState(null)
     useEffect(() => {
         try {
             setLoading(true)
@@ -31,6 +34,26 @@ const ShowPost = () => {
             setLoading(false)
         }
     }, [postslug])
+
+    useEffect(() => {
+        try {
+            const getRecentPost = async () => {
+                const res = await fetch(`/api/post/getpost?limit=3`)
+                const data = await res.json()
+                if (res.ok) {
+                    setRecents(data.posts)
+                }
+                else {
+                    console.log(data.message)
+                }
+            }
+            getRecentPost()
+        } catch (error) {
+            console.log(error.message)
+        }
+    }, [])
+
+
 
     if (loading) {
         return (
@@ -69,6 +92,14 @@ const ShowPost = () => {
                 <CallToAction />
             </div>
             <CommentPost postId={post && post._id} />
+            <div className='flex flex-col justify-center items-center my-20 '>
+                <h1 className='text-xl mt-5'>Recent articles</h1>
+                <div className='flex flex-wrap gap-5 mt-5 justify-center'>
+                    {recents &&
+                        recents.map((post) => <PostCard key={post._id} post={post} />)}
+                </div>
+            </div>
+
         </main>
     )
 }
