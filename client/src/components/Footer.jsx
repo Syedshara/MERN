@@ -1,7 +1,7 @@
 import React from 'react'
 import { Footer, FooterCopyright, FooterDivider, FooterIcon, FooterLink, FooterLinkGroup, FooterTitle } from 'flowbite-react'
 import { Link } from 'react-router-dom'
-import { BsFacebook, BsTwitter, BsInstagram, BsGithub } from 'react-iconS/bs'
+import { BsFacebook, BsTwitter, BsInstagram, BsGithub } from 'react-icons/bs'
 const FooterSection = () => {
     return (
         <Footer container className='border border-t-8 border-violet-500'>
