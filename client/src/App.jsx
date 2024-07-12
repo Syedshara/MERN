@@ -13,6 +13,7 @@ import CreatePost from './pages/CreatePost';
 import UpdatePost from './pages/UpdatePost'
 import ShowPost from './components/ShowPost';
 import ScrollUp from './components/ScrollUp';
+import Search from './components/Search';
 
 const App = () => {
   return (
@@ -24,6 +25,7 @@ const App = () => {
         <Route path="/about" element={<About />} />
         <Route path="/sign-in" element={<Signin />} />
         <Route path="/sign-up" element={<Signup />} />
+        <Route path='/search' element={<Search />} />
         <Route element={<ProtextDashboard />} >
           <Route path="/dashboard" element={<DashBoard />} />
         </Route>

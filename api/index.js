@@ -6,7 +6,10 @@ import auth from './routes/auth.js'
 import post from './routes/post.js'
 import comment from './routes/comment.js'
 import cookieParser from 'cookie-parser';
+import path from 'path'
+import exp from 'constants';
 dotenv.config();
+const __dirname = path.resolve()
 const app = express();
 app.use(express.json());
 
@@ -24,6 +27,13 @@ app.use('/api/user', user)
 app.use('/api/auth', auth)
 app.use('/api/post', post)
 app.use('/api/comment', comment)
+app.use(express.static(path.join(__dirname, '/client/dist')))
+
+app.get('*', (req, res) => {
+    res.sendDate(
+        path.join(__dirname, '/client/dist/index.html')
+    )
+})
 
 
 app.use((error, req, res, next) => {
