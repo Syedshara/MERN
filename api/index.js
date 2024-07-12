@@ -7,7 +7,7 @@ import post from './routes/post.js'
 import comment from './routes/comment.js'
 import cookieParser from 'cookie-parser';
 import path from 'path'
-import exp from 'constants';
+
 dotenv.config();
 const __dirname = path.resolve()
 const app = express();
@@ -30,10 +30,8 @@ app.use('/api/comment', comment)
 app.use(express.static(path.join(__dirname, '/client/dist')))
 
 app.get('*', (req, res) => {
-    res.sendDate(
-        path.join(__dirname, '/client/dist/index.html')
-    )
-})
+    res.sendFile(path.join(__dirname, 'client', 'dist', 'index.html'));
+});
 
 
 app.use((error, req, res, next) => {
