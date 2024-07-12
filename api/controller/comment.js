@@ -108,3 +108,43 @@ export const deleteLike = async (req, res, next) => {
 
 
 }
+
+export const getComments = async (req, res, next) => {
+
+    if (!req.user.isAdmin) {
+        return next(errorHandler(403, 'You are not allowed to get  Comments'));
+    }
+    try {
+        const limit = parseInt(req.query.limit) || 9;
+        const startIndex = parseInt(req.query.startIndex) || 0
+        const direction = req.query.direction === 'asc' ? 1 : -1;
+        const comments = await Comment.find()
+            .sort({ createdAt: direction })
+            .skip(startIndex)
+            .limit(limit);
+
+        const TotalComment = await Comment.countDocuments()
+
+        const now = new Date()
+        const LastMonth = new Date(
+            now.getFullYear(),
+            now.getMonth() - 1,
+            now.getDate()
+        )
+        const LastMonthComment = await Comment.countDocuments({
+            createdAt: {
+                $gte: LastMonth
+            }
+        })
+        return res.status(200).json({
+            comments,
+            TotalComment,
+            LastMonthComment
+
+        })
+
+    }
+    catch (err) {
+        next(err)
+    }
+}

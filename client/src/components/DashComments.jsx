@@ -2,13 +2,12 @@ import React from 'react'
 import { Table, Button, Modal } from 'flowbite-react'
 import { useSelector } from 'react-redux'
 import { useState, useEffect } from 'react'
-import { Link } from 'react-router-dom'
 import { HiOutlineExclamationCircle } from 'react-icons/hi'
-import { FaCheck, FaTimes } from 'react-icons/fa'
 
-const DashPost = () => {
+
+const DashComments = () => {
     const { currentUser } = useSelector(state => state.user)
-    const [users, setUsers] = useState([])
+    const [comments, setComments] = useState([])
     const [showMore, setShowMore] = useState(true)
     const [deleteId, setDeleteId] = useState(null)
     const [open, setOpen] = useState(false)
@@ -16,12 +15,12 @@ const DashPost = () => {
         const fetchPost = async () => {
             try {
                 const res = await fetch(
-                    "/api/user/getuser"
+                    "/api/comment/getComments"
                 )
                 const data = await res.json()
                 if (res.ok) {
-                    setUsers(data.userWithOutPass)
-                    if (data.userWithOutPass.length < 9) {
+                    setComments(data.comments)
+                    if (data.comments.length < 9) {
                         setShowMore(false)
                     }
                 }
@@ -40,12 +39,12 @@ const DashPost = () => {
         const start = users.length;
         try {
             const res = await fetch(
-                `/api/user/getuser?startIndex=${start}`
+                `/api/comment/getcomments?startIndex=${start}`
             )
             const data = await res.json()
             if (res.ok) {
-                setUsers([...users, ...data.userWithOutPass])
-                if (data.userWithOutPass.length < 9) {
+                setComments([...comments, ...data.comments])
+                if (data.comments.length < 9) {
                     setShowMore(false)
                 }
 
@@ -63,7 +62,7 @@ const DashPost = () => {
     const handleDelete = async () => {
         setOpen(false)
         try {
-            const data = await fetch(`/api/user/delete/${deleteId}`, {
+            const data = await fetch(`/api/comment/deletecomment/${deleteId}`, {
                 method: 'DELETE',
             });
             const res = await data.json()
@@ -72,10 +71,9 @@ const DashPost = () => {
 
             }
             else {
-                alert("User Deleted Successfull")
-                const newUser = users.filter((user) => user._id !== deleteId)
-                setUsers(newUser)
-                if (newUser.length < 9) {
+                const newComment = comments.filter((comment) => comment._id !== deleteId)
+                setComments(newComment)
+                if (newComment.length < 9) {
                     setShowMore(false)
                 }
             }
@@ -90,49 +88,52 @@ const DashPost = () => {
     return (
         <div className='table-auto overflow-x-scroll md:mx-auto p-3 scrollbar dark:scrollbar-track-slate-700 dark:scrollbar-thumb-slate-500 scrollbar-thumb-slate-300 scrollbar-track-slate-100 mt-7'>
             {
-                currentUser.isAdmin && users.length > 0 ? (
+                currentUser.isAdmin && comments.length > 0 ? (
                     <>
                         <Table hoverable className='shadow-md'>
                             <Table.Head >
                                 <Table.HeadCell>DATE CREATED</Table.HeadCell>
-                                <Table.HeadCell>USER IMAGE</Table.HeadCell>
-                                <Table.HeadCell>USERNAME</Table.HeadCell>
-                                <Table.HeadCell>EMAIL</Table.HeadCell>
-                                <Table.HeadCell>ADMIN</Table.HeadCell>
+                                <Table.HeadCell>Comment</Table.HeadCell>
+                                <Table.HeadCell>No.of Likes</Table.HeadCell>
+                                <Table.HeadCell>User ID</Table.HeadCell>
+                                <Table.HeadCell>Post ID</Table.HeadCell>
                                 <Table.HeadCell>
                                     <span>DELETE</span>
                                 </Table.HeadCell>
                             </Table.Head>
                             {
-                                users.map((user) => (
-                                    <Table.Body key={user._id} className='divide-y'>
+                                comments.map((comment) => (
+                                    <Table.Body key={comment._id} className='divide-y'>
                                         <Table.Row className='bg-slate-100  dark:bg-gray-800'>
                                             <Table.Cell>
-                                                {new Date(user.createdAt).toLocaleDateString()}
+                                                {new Date(comment.createdAt).toLocaleDateString()}
                                             </Table.Cell>
-                                            <Table.Cell>
-                                                <Link>
-                                                    <img src={user.photoURL} alt="Post" className='w-10 h-10 object-cover bg-gray-500 rounded-full self-center mx-auto' />
-                                                </Link>
-                                            </Table.Cell>
+                                            <Table.Cell className='line-clamp-3'>
+                                                <span className='line-clamp-3 overflow-hidden'>
+                                                    {comment.comment}
+                                                </span>
 
-
-                                            <Table.Cell>
-                                                {user.username}
                                             </Table.Cell>
 
+
                                             <Table.Cell>
-                                                {user.email}
+                                                {comment.noLikes}
                                             </Table.Cell>
 
                                             <Table.Cell>
-                                                {user.isAdmin ? (<FaCheck className='text-green-500' />) : (<FaTimes className='text-red-500' />)}
+                                                {comment.userId}
+                                            </Table.Cell>
+
+                                            <Table.Cell>
+                                                {
+                                                    comment.postId
+                                                }
                                             </Table.Cell>
                                             <Table.Cell>
                                                 <span className='font-medium text-red-500 hover:underline cursor-pointer'
                                                     onClick={() => {
                                                         setOpen(true)
-                                                        setDeleteId(user._id)
+                                                        setDeleteId(comment._id)
                                                     }
                                                     }
                                                 >
@@ -166,7 +167,7 @@ const DashPost = () => {
 
                                     <HiOutlineExclamationCircle className='mx-auto mb-4 w-12 h-12 text-gray-400 dark:text-gray-200' />
                                     <h3 className='text-lg font-medium text-gray-500 dark:text-gray-100'>
-                                        Are you sure you want to delete your account?
+                                        Are you sure you want to delete your comment?
 
                                     </h3>
                                     <div className='flex justify-center gap-5 mt-7'>
@@ -184,7 +185,7 @@ const DashPost = () => {
 
                     </>
                 ) :
-                    "No Users yet!"
+                    "No posts yet!"
 
             }
 
@@ -192,4 +193,4 @@ const DashPost = () => {
     )
 }
 
-export default DashPost
+export default DashComments
